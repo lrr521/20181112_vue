@@ -21,6 +21,8 @@ export default {
   mounted(){
     // 第一种方法
     // this.$store.dispatch('getAddress')
+    this.$store.dispatch('getCategorys')
+    this.$store.dispatch('getShops')
     // 第二种方法  map映射
     this.getAddress()
   },

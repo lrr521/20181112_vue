@@ -10,107 +10,15 @@
       </span>
     </HeaderTop>
     <!--首页导航-->
-    <nav class="msite_nav">
+    <nav class="msite_nav" v-if="categorys.length">
       <div class="swiper-container">
         <div class="swiper-wrapper">
-          <div class="swiper-slide">
-            <a href="javascript:" class="link_to_food">
+          <div class="swiper-slide" v-for="(categorys,index) in categorysArr" :key="index">
+            <a href="javascript:" class="link_to_food" v-for="(category,index) in categorys" :key="index">
               <div class="food_container">
-                <img src="./images/nav/1.jpg" />
+                <img :src="baseImageUrl+category.image_url" />
               </div>
-              <span>甜品饮品</span>
-            </a>
-            <a href="javascript:" class="link_to_food">
-              <div class="food_container">
-                <img src="./images/nav/2.jpg" />
-              </div>
-              <span>商超便利</span>
-            </a>
-            <a href="javascript:" class="link_to_food">
-              <div class="food_container">
-                <img src="./images/nav/3.jpg" />
-              </div>
-              <span>美食</span>
-            </a>
-            <a href="javascript:" class="link_to_food">
-              <div class="food_container">
-                <img src="./images/nav/4.jpg" />
-              </div>
-              <span>简餐</span>
-            </a>
-            <a href="javascript:" class="link_to_food">
-              <div class="food_container">
-                <img src="./images/nav/5.jpg" />
-              </div>
-              <span>新店特惠</span>
-            </a>
-            <a href="javascript:" class="link_to_food">
-              <div class="food_container">
-                <img src="./images/nav/6.jpg" />
-              </div>
-              <span>准时达</span>
-            </a>
-            <a href="javascript:" class="link_to_food">
-              <div class="food_container">
-                <img src="./images/nav/7.jpg" />
-              </div>
-              <span>预订早餐</span>
-            </a>
-            <a href="javascript:" class="link_to_food">
-              <div class="food_container">
-                <img src="./images/nav/8.jpg" />
-              </div>
-              <span>土豪推荐</span>
-            </a>
-          </div>
-          <div class="swiper-slide">
-            <a href="javascript:" class="link_to_food">
-              <div class="food_container">
-                <img src="./images/nav/9.jpg" />
-              </div>
-              <span>甜品饮品</span>
-            </a>
-            <a href="javascript:" class="link_to_food">
-              <div class="food_container">
-                <img src="./images/nav/10.jpg" />
-              </div>
-              <span>商超便利</span>
-            </a>
-            <a href="javascript:" class="link_to_food">
-              <div class="food_container">
-                <img src="./images/nav/11.jpg" />
-              </div>
-              <span>美食</span>
-            </a>
-            <a href="javascript:" class="link_to_food">
-              <div class="food_container">
-                <img src="./images/nav/12.jpg" />
-              </div>
-              <span>简餐</span>
-            </a>
-            <a href="javascript:" class="link_to_food">
-              <div class="food_container">
-                <img src="./images/nav/13.jpg" />
-              </div>
-              <span>新店特惠</span>
-            </a>
-            <a href="javascript:" class="link_to_food">
-              <div class="food_container">
-                <img src="./images/nav/14.jpg" />
-              </div>
-              <span>准时达</span>
-            </a>
-            <a href="javascript:" class="link_to_food">
-              <div class="food_container">
-                <img src="./images/nav/1.jpg" />
-              </div>
-              <span>预订早餐</span>
-            </a>
-            <a href="javascript:" class="link_to_food">
-              <div class="food_container">
-                <img src="./images/nav/2.jpg" />
-              </div>
-              <span>土豪推荐</span>
+              <span>{{category.title}}</span>
             </a>
           </div>
         </div>
@@ -118,6 +26,8 @@
         <div class="swiper-pagination"></div>
       </div>
     </nav>
+    <img src="./images/msite_back.svg" style="margin-top:45px" alt="background" v-else>
+
     <!--首页附近商家-->
     <div class="msite_shop_list">
       <div class="shop_header">
@@ -142,31 +52,63 @@ import '../../../node_modules/swiper/css/swiper.min.css'
 export default {
   name: "index",
   data() {
-    return {};
-  },
-  mounted(){
-    new Swiper('.swiper-container',{
-      loop: true, // 循环模式选项
-      // 如果需要分页器
-      pagination: {
-        el: '.swiper-pagination',
-      },
-      autoplay: 2000, //可选选项，自动滑动
-    })
+    return {
+      baseImageUrl:'https://fuss10.elemecdn.com',
+      flag:false
+    };
   },
   computed:{
-    ...mapState(['address'])
+    ...mapState(['address','categorys']),
+
+    /**
+     * categorysArr计算属性
+     * 将一维数组变成二维数据渲染swpier列表
+     * 并且二维数组每个小数组不超过8条
+     */
+    categorysArr(){
+      const {categorys} = this  // 对象解构
+      const arr = []
+      let minArr = []
+      // 遍历食品分类 categorys
+      categorys.forEach(e => {
+        // 如果小数组满了，就清空
+        if(minArr.length===8){
+          minArr = []
+        }
+        // 小数组长度为零时，push到大数组中
+        if(minArr.length===0){
+          arr.push(minArr)
+        }
+        minArr.push(e)
+      });
+      return arr
+    }
   },
   components:{
     HeaderTop,
     ShopList
+  },
+  watch:{
+    // 解决swpier对象问题：页面创建和new一个swpier对象是同时执行的，所以会碰到同步问题，用$nextTick解决，将回调延迟到下次 DOM 更新循环之后执行
+    categorys(){
+      this.$nextTick(()=>{
+        new Swiper('.swiper-container',{
+          loop: true, // 循环模式选项
+          autoplay: 2000, //可选选项，自动滑动
+          // 如果需要分页器
+          pagination: {
+            el: '.swiper-pagination',
+          },
+        })
+      })
+    }
   }
 };
 </script>
 <style lang="stylus" scoped>
 @import "../../common/stylus/mixins.styl"
 .msite  //首页
-    width 100%
+    width 100% 
     .msite_nav
         bottom-border-1px(#e4e4e4)
         margin-top 45px

@@ -11,8 +11,7 @@
 export default {
     props:{
         title: String
-    },
-    data:{}
+    }
 }
 </script>
 <style lang="stylus" scoped>
